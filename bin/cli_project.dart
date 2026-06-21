@@ -1,57 +1,33 @@
-import 'package:args/args.dart';
+import 'dart:io';
 
-const String version = '0.0.1';
+void main()
+{
+    const String appTitle = "Student Grader v1.0";
 
-ArgParser buildParser() {
-  return ArgParser()
-    ..addFlag(
-      'help',
-      abbr: 'h',
-      negatable: false,
-      help: 'Print this usage information.',
-    )
-    ..addFlag(
-      'verbose',
-      abbr: 'v',
-      negatable: false,
-      help: 'Show additional command output.',
-    )
-    ..addFlag('version', negatable: false, help: 'Print the tool version.');
-}
+    final Set<String> subjects = {"Bangla", "English", "Math", "Science"};
 
-void printUsage(ArgParser argParser) {
-  print('Usage: dart cli_project.dart <flags> [arguments]');
-  print(argParser.usage);
-}
+    int? menunav;
 
-void main(List<String> arguments) {
-  final ArgParser argParser = buildParser();
-  try {
-    final ArgResults results = argParser.parse(arguments);
-    bool verbose = false;
+    
+    do
+    {
+        print("===== $appTitle =====");
+        print("");
+        print("");
+        print("1. Add Student");
+        print("2. Record Score");
+        print("3. Add Bonus Profile");
+        print("4. Add Comment");
+        print("5. View All Student");
+        print("6. View Report Card");
+        print("7. Class Summary");
+        print("0. Exit");
 
-    // Process the parsed arguments.
-    if (results.flag('help')) {
-      printUsage(argParser);
-      return;
+        print("Choose an option: ");
+        var menunavstr = stdin.readLineSync();
+
+        menunav = int.tryParse(menunavstr ?? '') ?? 0;
+
     }
-    if (results.flag('version')) {
-      print('cli_project version: $version');
-      return;
-    }
-    if (results.flag('verbose')) {
-      verbose = true;
-    }
-
-    // Act on the arguments provided.
-    print('Positional arguments: ${results.rest}');
-    if (verbose) {
-      print('[VERBOSE] All arguments: ${results.arguments}');
-    }
-  } on FormatException catch (e) {
-    // Print usage information if an invalid argument was provided.
-    print(e.message);
-    print('');
-    printUsage(argParser);
-  }
+    while (menunav != 0);
 }
