@@ -413,7 +413,152 @@ void main()
                 }
                 break;
             case 7:
-                print("Class Summary");
+                {
+                    // First check if there are any students at all
+                    if (students.isEmpty)
+                    {
+                        print("No students added yet. Please add a student first.");
+                        break;
+                    }
+
+                    // We will track several things as we loop through the students
+                    int totalStudents = students.length;
+                    int passCount = 0; // how many students passed (average >= 60)
+
+                    // For class average we need the sum of every student's average
+                    double sumOfAverages = 0.0;
+                    // We only count students who actually have scores in the class average
+                    int countedStudents = 0;
+
+                    // For highest and lowest we start with values that any real average will beat
+                    double highestAverage = -1.0; // starts lower than any possible average
+                    double lowestAverage = 101.0; // starts higher than any possible average
+
+                    // A Set to track the unique grade letters that appear across the class
+                    var gradeLetters = <String>{};
+
+                    // This list will hold one summary line per student, built with a collection for
+                    var summaryLines = <String>[];
+
+                    // Go through every student to compute their average and grade
+                    for (var student in students)
+                    {
+                        // Get this student's scores
+                        var scoresMap = student["scores"] as Map<String, double>;
+
+                        // If the student has no scores, record that and skip the math for them
+                        if (scoresMap.isEmpty)
+                        {
+                            summaryLines.add("${student["name"]}: No scores yet");
+                            continue; // move on to the next student
+                        }
+
+                        // Calculate the raw average using a for loop (sum then divide)
+                        double sum = 0.0;
+                        var scoreValues = scoresMap.values.toList();
+                        for (int i = 0; i < scoreValues.length; i++)
+                        {
+                            sum = sum + scoreValues[i];
+                        }
+                        double rawAverage = sum / scoreValues.length;
+
+                        // Add the bonus if it exists, using ?? so null becomes 0
+                        double bonus = (student["bonus"] as double?) ?? 0.0;
+                        double finalAverage = rawAverage + bonus;
+
+                        // Cap the final average at 100
+                        if (finalAverage > 100)
+                        {
+                            finalAverage = 100;
+                        }
+
+                        // Assign the grade letter using if / else if
+                        String grade;
+                        if (finalAverage >= 90)
+                        {
+                            grade = "A";
+                        }
+                        else if (finalAverage >= 80)
+                        {
+                            grade = "B";
+                        }
+                        else if (finalAverage >= 70)
+                        {
+                            grade = "C";
+                        }
+                        else if (finalAverage >= 60)
+                        {
+                            grade = "D";
+                        }
+                        else
+                        {
+                            grade = "F";
+                        }
+
+                        // Add this grade letter to the Set (duplicates are ignored automatically)
+                        gradeLetters.add(grade);
+
+                        // Count this student toward the class average
+                        sumOfAverages = sumOfAverages + finalAverage;
+                        countedStudents = countedStudents + 1;
+
+                        // Use logical operators (&&) to only count students who have scores and are passing
+                        if (scoresMap.isNotEmpty && finalAverage >= 60)
+                        {
+                            passCount = passCount + 1;
+                        }
+
+                        // Update the highest average if this one is bigger
+                        if (finalAverage > highestAverage)
+                        {
+                            highestAverage = finalAverage;
+                        }
+
+                        // Update the lowest average if this one is smaller
+                        if (finalAverage < lowestAverage)
+                        {
+                            lowestAverage = finalAverage;
+                        }
+
+                        // Add a summary line for this student
+                        summaryLines.add("${student["name"]}: ${finalAverage.toStringAsFixed(1)} ($grade)");
+                    }
+
+                    // If nobody had any scores, we cannot show averages
+                    if (countedStudents == 0)
+                    {
+                        print("");
+                        print("--- Class Summary ---");
+                        print("Total students: $totalStudents");
+                        print("No scores recorded for any student yet.");
+                        break;
+                    }
+
+                    // Compute the class average from the students who had scores
+                    double classAverage = sumOfAverages / countedStudents;
+
+                    // Now print everything out
+                    print("");
+                    print("========================================");
+                    print("             CLASS SUMMARY              ");
+                    print("========================================");
+                    print("Total students:   $totalStudents");
+                    print("Students graded:  $countedStudents");
+                    print("Passing (>= 60):  $passCount");
+                    print("Class average:    ${classAverage.toStringAsFixed(1)}");
+                    print("Highest average:  ${highestAverage.toStringAsFixed(1)}");
+                    print("Lowest average:   ${lowestAverage.toStringAsFixed(1)}");
+                    print("Grades present:   ${gradeLetters.join(", ")}");
+                    print("========================================");
+
+                    // Print the per-student summary lines we built
+                    print("Per-student averages:");
+                    for (var line in summaryLines)
+                    {
+                        print("  $line");
+                    }
+                    print("========================================");
+                }
                 break;
             case 0:
                 print("Exiting...");
