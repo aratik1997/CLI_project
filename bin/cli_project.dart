@@ -264,10 +264,153 @@ void main()
                 }
                 break;
             case 5:
-                print("View All Student");
+                {
+                    // First check if there are any students at all
+                    if (students.isEmpty)
+                    {
+                        print("No students added yet. Please add a student first.");
+                        break;
+                    }
+
+                    print("");
+                    print("--- All Students ---");
+
+                    // Use a for-in loop to go through every student one by one
+                    for (var student in students)
+                    {
+                        // Get the scores map so we can count how many scores were recorded
+                        var scoresMap = student["scores"] as Map<String, double>;
+
+                        // Build a list of tags using a collection if
+                        // The bonus tag is only included when bonus is not null
+                        var tags = [
+                            student["name"],
+                            "${scoresMap.length} scores",
+                            if (student["bonus"] != null) "Has Bonus",
+                        ];
+
+                        // Join the tags together with a separator so it prints on one line
+                        print(tags.join(" | "));
+                    }
+                }
                 break;
-            case 6:
-                print("View Report Card");
+           case 6:
+                {
+                    // First check if there are any students at all
+                    if (students.isEmpty)
+                    {
+                        print("No students added yet. Please add a student first.");
+                        break;
+                    }
+
+                    // Show a numbered list of students using an indexed for loop
+                    print("");
+                    print("--- Select a Student ---");
+                    for (int i = 0; i < students.length; i++)
+                    {
+                        print("${i + 1}. ${students[i]["name"]}");
+                    }
+
+                    // Ask the teacher to pick a student by number
+                    print("Choose a student number: ");
+                    var studentChoiceStr = stdin.readLineSync();
+                    int studentChoice = int.tryParse(studentChoiceStr ?? '') ?? 0;
+
+                    // Validate the student choice is in range (1 to students.length)
+                    if (studentChoice < 1 || studentChoice > students.length)
+                    {
+                        print("Invalid student number. Please try again.");
+                        break;
+                    }
+
+                    // Convert the teacher's choice (starts at 1) back to a list index (starts at 0)
+                    int studentIndex = studentChoice - 1;
+                    var selectedStudent = students[studentIndex];
+
+                    // Get the scores map for this student
+                    var scoresMap = selectedStudent["scores"] as Map<String, double>;
+
+                    // Make sure the student actually has scores before we calculate an average
+                    if (scoresMap.isEmpty)
+                    {
+                        print("This student has no scores recorded yet. Cannot make a report card.");
+                        break;
+                    }
+
+                    // Calculate the raw average using a for loop (sum then divide)
+                    double sum = 0.0;
+                    // Get all the score values as a list so we can loop over them with an index
+                    var scoreValues = scoresMap.values.toList();
+                    for (int i = 0; i < scoreValues.length; i++)
+                    {
+                        sum = sum + scoreValues[i];
+                    }
+                    double rawAverage = sum / scoreValues.length;
+
+                    // Add the bonus if it exists, using ?? so null becomes 0
+                    double bonus = (selectedStudent["bonus"] as double?) ?? 0.0;
+                    double finalAverage = rawAverage + bonus;
+
+                    // Cap the final average at 100 so bonus can't push it past the max
+                    if (finalAverage > 100)
+                    {
+                        finalAverage = 100;
+                    }
+
+                    // Assign the grade letter using if / else if and relational operators
+                    String grade;
+                    if (finalAverage >= 90)
+                    {
+                        grade = "A";
+                    }
+                    else if (finalAverage >= 80)
+                    {
+                        grade = "B";
+                    }
+                    else if (finalAverage >= 70)
+                    {
+                        grade = "C";
+                    }
+                    else if (finalAverage >= 60)
+                    {
+                        grade = "D";
+                    }
+                    else
+                    {
+                        grade = "F";
+                    }
+
+                    // Get the feedback line using a switch expression with pattern matching on the grade
+                    String feedback = switch (grade) {
+                        "A" => "Outstanding performance!",
+                        "B" => "Good work, keep it up!",
+                        "C" => "Satisfactory. Room to improve.",
+                        "D" => "Needs improvement.",
+                        "F" => "Failing. Please seek help.",
+                        _   => "Unknown grade.",
+                    };
+
+                    // Get the comment safely using ?. and ?? to provide a default
+                    String commentDisplay = (selectedStudent["comment"] as String?)?.toUpperCase() ?? "No comment provided";
+
+                    // Build the scores list as a readable string for display
+                    String scoresText = scoreValues.toString();
+
+                    // Print the report card using string interpolation and multi-line strings
+                    print("");
+                    print("========================================");
+                    print("              REPORT CARD               ");
+                    print("========================================");
+                    print("  Name:    ${selectedStudent["name"]}");
+                    print("  Scores:  $scoresText");
+                    print("  Bonus:   +$bonus");
+                    print("  Average: ${finalAverage.toStringAsFixed(1)}");
+                    print("  Grade:   $grade");
+                    print("  Comment: $commentDisplay");
+                    print("========================================");
+                    print("  $feedback");
+                    print("========================================");
+                }
                 break;
             case 7:
                 print("Class Summary");
