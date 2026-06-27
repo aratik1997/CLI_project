@@ -40,7 +40,7 @@ void main()
                         "name": name,
                         "subjects": {...subjects},
                         "scores": <String, double>{},
-                        "bonus": 0.0,
+                        "bonus": null, // null means no bonus has been awarded yet
                         "Average": 0.0,
                         "Grade": "",
                         "comments": <String>[],
@@ -140,11 +140,128 @@ void main()
                     print("Score recorded successfully for ${selectedStudent["name"]} in $selectedSubject.");
                 }
                 break;
-            case 3:
-                print("Add Bonus Profile");
+           case 3:
+                {
+                    // First check if there are any students at all
+                    if (students.isEmpty)
+                    {
+                        print("No students added yet. Please add a student first.");
+                        break;
+                    }
+
+                    // Show a numbered list of students using an indexed for loop
+                    print("");
+                    print("--- Select a Student ---");
+                    for (int i = 0; i < students.length; i++)
+                    {
+                        // We add 1 to i so the list starts at 1 instead of 0 for the teacher
+                        print("${i + 1}. ${students[i]["name"]}");
+                    }
+
+                    // Ask the teacher to pick a student by number
+                    print("Choose a student number: ");
+                    var studentChoiceStr = stdin.readLineSync();
+                    int studentChoice = int.tryParse(studentChoiceStr ?? '') ?? 0;
+
+                    // Validate the student choice is in range (1 to students.length)
+                    if (studentChoice < 1 || studentChoice > students.length)
+                    {
+                        print("Invalid student number. Please try again.");
+                        break;
+                    }
+
+                    // Convert the teacher's choice (starts at 1) back to a list index (starts at 0)
+                    int studentIndex = studentChoice - 1;
+                    var selectedStudent = students[studentIndex];
+
+                    // Now ask for the bonus value and validate it is between 1 and 10
+                    double bonusValue = -1.0; // Start with an invalid value so the while loop runs at least once
+                    bool isValidBonus = false;
+
+                    // Keep asking until the teacher enters a valid bonus value
+                    while (isValidBonus == false)
+                    {
+                        print("Enter bonus points (1 to 10): ");
+                        var bonusStr = stdin.readLineSync();
+                        // Try to parse the input as a double; if it fails we use -1 so it stays invalid
+                        double parsedBonus = double.tryParse(bonusStr ?? '') ?? -1.0;
+
+                        // Check if the bonus is in the valid range
+                        if (parsedBonus >= 1 && parsedBonus <= 10)
+                        {
+                            bonusValue = parsedBonus;
+                            isValidBonus = true; // This will stop the while loop
+                        }
+                        else
+                        {
+                            print("Invalid bonus. Please enter a number between 1 and 10.");
+                        }
+                    }
+
+                    // Check if a bonus was already set before we try to assign one
+                    // We read the current bonus first so we can tell the teacher what happened
+                    var currentBonus = selectedStudent["bonus"];
+
+                    // Only assigns if bonus is currently null (this is the ??= operator)
+                    selectedStudent["bonus"] ??= bonusValue;
+
+                    // Inform the teacher whether the bonus was applied or already existed
+                    if (currentBonus == null)
+                    {
+                        print("Bonus of $bonusValue added for ${selectedStudent["name"]}.");
+                    }
+                    else
+                    {
+                        print("Bonus was already set to $currentBonus for ${selectedStudent["name"]}. No change made.");
+                    }
+                }
                 break;
-            case 4:
-                print("Add Comment");
+           case 4:
+                {
+                    // First check if there are any students at all
+                    if (students.isEmpty)
+                    {
+                        print("No students added yet. Please add a student first.");
+                        break;
+                    }
+
+                    // Show a numbered list of students using an indexed for loop
+                    print("");
+                    print("--- Select a Student ---");
+                    for (int i = 0; i < students.length; i++)
+                    {
+                        // We add 1 to i so the list starts at 1 instead of 0 for the teacher
+                        print("${i + 1}. ${students[i]["name"]}");
+                    }
+
+                    // Ask the teacher to pick a student by number
+                    print("Choose a student number: ");
+                    var studentChoiceStr = stdin.readLineSync();
+                    int studentChoice = int.tryParse(studentChoiceStr ?? '') ?? 0;
+
+                    // Validate the student choice is in range (1 to students.length)
+                    if (studentChoice < 1 || studentChoice > students.length)
+                    {
+                        print("Invalid student number. Please try again.");
+                        break;
+                    }
+
+                    // Convert the teacher's choice (starts at 1) back to a list index (starts at 0)
+                    int studentIndex = studentChoice - 1;
+                    var selectedStudent = students[studentIndex];
+
+                    // Ask the teacher to type a comment for this student
+                    print("Enter a comment for ${selectedStudent["name"]}: ");
+                    var commentInput = stdin.readLineSync();
+
+                    // Store the comment in the student's comment field (a nullable String?)
+                    selectedStudent["comment"] = commentInput;
+
+                    // Show the comment back using ?. (safe access) and ?? (fallback default)
+                    // If comment is null, ?.toUpperCase() returns null, then ?? gives the default text
+                    String display = (selectedStudent["comment"] as String?)?.toUpperCase() ?? "No comment provided";
+                    print("Comment saved: $display");
+                }
                 break;
             case 5:
                 print("View All Student");
